@@ -42,12 +42,54 @@ exports.CheckIfUserExists = async function(email, password){
   });
 
   //Get raw student information data
-  const rawStudentData = await page.$eval("#pnlPersonales > div.panel-body > div", e => e.outerHTML);
+  //const rawStudentData = await page.$eval("#pnlPersonales > div.panel-body > div", e => e.outerHTML);
 
   //Close page
   await page.close();
 
-  return rawStudentData;
+  return Promise.resolve();
+}
+
+
+exports.getStudentData = async function(email ,password){
+  var browser = await PuppService.GetBrowser();
+
+  //Navigate to login page
+  const page = await browser.newPage();
+  page.setViewport({ width: 1280, height: 926 });
+  await page.goto(LoginPage);
+
+  //Write username and password
+  await page.type("#txtUsuarioStd", email);
+  await page.type("#txtPasswordStd", password);
+
+  //Select sede
+  await page.select("#cboSedeStd", "UNI");
+
+  //Click and wait log in and wait for navigation
+  await Promise.all([
+    page.click("#lnkAceptarStd"),
+    page.waitForNavigation({waitUntil: 'networkidle0'})
+  ])
+  .catch(reason => {
+    return Promise.reject(reason);
+  });
+
+  //Go to student data
+  await Promise.all([
+    page.click("#lnkInfoEst"),
+    page.waitForNavigation({waitUntil: 'networkidle0' })
+  ]);
+
+  var Data = {};
+
+  var sImage = await page.$("#ContentPlaceHolder1_imgFoto");
+  await sImage.screenshot({omitBackground: true, encoding: 'base64'}).then((imgBase64) => Data['Img64'] = imgBase64);
+
+  //Close
+  await page.close();
+
+  return Data;
 }
 
 //Get some shit
