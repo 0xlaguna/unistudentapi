@@ -10,10 +10,10 @@ router.get('/', function(req, res, next) {
 
 router.post('/login', async function(req, res, next){
   //Do login here
-  await userController.CheckIfUserExists(req.body.email, req.body.password).then(() => {
+  await userController.CheckIfUserExists(req.body.email, req.body.password).then((data) => {
     //return json web token
     //token = jwt.sign({userId: req.body.email}, process.env.JWT_SECRET);
-    res.status(200).send("Ok");
+    res.status(200).send(data);
   })
   .catch(reason => {
     console.log(reason);

@@ -30,9 +30,12 @@ exports.CheckIfUserExists = async function(email, password){
     return Promise.reject(reason);
   });
 
+  var initialData = {};
+
   //Get full name
   const FullName = await page.$eval('#lblUsuario', e => e.textContent);
-  
+  initialData['fullname'] = FullName;
+
   //Navigate to students information
   await Promise.all([
     page.click("#lnkInfoEst"),
@@ -41,13 +44,14 @@ exports.CheckIfUserExists = async function(email, password){
     return Promise.reject(reason);
   });
 
-  //Get raw student information data
-  //const rawStudentData = await page.$eval("#pnlPersonales > div.panel-body > div", e => e.outerHTML);
+  var sImage = await page.$("#ContentPlaceHolder1_imgFoto");
+  await sImage.screenshot({omitBackground: true, encoding: 'base64'})
+    .then((imgBase64) => initialData['simgb64'] = imgBase64);
 
   //Close page
   await page.close();
 
-  return Promise.resolve();
+  return initialData;
 }
 
 
@@ -81,15 +85,65 @@ exports.getStudentData = async function(email ,password){
     page.waitForNavigation({waitUntil: 'networkidle0' })
   ]);
 
-  var Data = {};
+  var DataStudent = {};
 
+  //Get student img, take screenshot
   var sImage = await page.$("#ContentPlaceHolder1_imgFoto");
-  await sImage.screenshot({omitBackground: true, encoding: 'base64'}).then((imgBase64) => Data['Img64'] = imgBase64);
+  await sImage.screenshot({omitBackground: true, encoding: 'base64'})
+    .then((imgBase64) => DataStudent['simgb64'] = imgBase64);
+
+  //const nocar = await page.$eval('#ContentPlaceHolder1_lblNoCarnet', e => e.textContent);
+  //DataStudent['Carnet'] = nocar;
+
+  //Ger personal data
+  await Promise.all([
+    page.$eval('#ContentPlaceHolder1_lblNoCarnet', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblNombres', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblApellidos', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblFNac', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblSexo', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblEstadoCiv', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblDireccion', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblTelefono1', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblTelefono2', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblCorreo', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblCelular', e => e.textContent)
+  ]).then(values => {
+    DataStudent['psdata'] = values;
+  });
+
+  //Get career data
+  await Promise.all([
+    page.$eval('#ContentPlaceHolder1_lblFacultad > a', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblCarrera', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lnkPlanEstudios', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblTurno', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblEstCarEstado', e => e.textContent),
+    page.$eval('#ContentPlaceHolder1_lblAIngreso', e => e.textContent)
+  ]).then(values => {
+    DataStudent['csdata'] = values;
+  });
+
+  /*const noCarnet = await page.$eval("#ContentPlaceHolder1_lblNoCarnet", e => e.textContent);
+  DataStudent['noCarnet'] = noCarnet;
+  const nombres = await page.$eval("#ContentPlaceHolder1_lblNombres", e => e.textContent);
+  DataStudent['nombres'] = nombres;
+  const apellidos = await page.$eval("#ContentPlaceHolder1_lblApellidos", e => e.textContent);
+  DataStudent['apellidos'] = apellidos;
+  const fechaNac = await page.$eval("#ContentPlaceHolder1_lblFNac", e => e.textContent);
+  DataStudent['fechaNac'] = fechaNac;
+  const sexo = await page.$eval("#ContentPlaceHolder1_lblSexo", e => e.textContent);
+  DataStudent['sexo'] = sexo;
+  const estadoCivil = await page.$eval("#ContentPlaceHolder1_lblEstadoCiv", e.textContent);
+  DataStudent['estadoCivil'] = estadoCivil;
+  const direccion = await page.$eval("#ContentPlaceHolder1_lblDireccion", e => e.textContent);
+  const tel1 = await page.$eval("#ContentPlaceHolder1_lblTelefono1", e => e.textContent);
+  const tel2 = await page.$eval("#ContentPlaceHolder1_lblTelefono2", e => e.textContent);*/
 
   //Close
   await page.close();
 
-  return Data;
+  return DataStudent;
 }
 
 //Get some shit

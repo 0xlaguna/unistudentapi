@@ -1,8 +1,41 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+body, html {
+  height: 100%;
+  margin: 0;
 }
 
-a {
-  color: #00B7FF;
+.bg {
+  background-image: url('../images/1030948.jpg');
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.uni_container {
+  width: 120px;
+  height: 130px;
+  position: absolute;
+  z-index: 15;
+  top: 50%;
+  left: 50%;
+  margin: -85px 0 0 -116px;
+  transform: rotate(-15deg)
+}
+
+.uni_container img {
+  width: 100%;
+  height: auto;
+}
+
+.txtcontainer {
+  position: absolute;
+  top: 30%;
+  left: 70%;
+}
+
+.txts {
+  text-align: center;
+  color: #2F4858;
+  text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+  font: 18px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
